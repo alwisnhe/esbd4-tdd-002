@@ -4,6 +4,13 @@
 	</head>
 	<body>
 		<h1>Your To-Do list</h1>
+		{% if list.id > 1 %}
+			<a href="/lists/{{ list.id|add:"-1" }}/"><button type="button" id="btn_anterior">Anterior</button></a>
+		{% else %}
+			<button type="button" id="btn_anterior" disabled>Anterior</button>
+		{% endif %}
+		<a href="/lists/{{ list.id|add:"1" }}/"><button type="button" id="btn_proximo">Próximo</button></a>
+		
 		<form method="POST" action="/lists/{{list.id}}/add_item">
 			<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
 			{% csrf_token %}
