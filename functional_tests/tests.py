@@ -29,6 +29,45 @@ class NewVisitorTest(LiveServerTestCase):
 					raise e
 				time.sleep(0.5)
 
+	def test_a_navigation_buttons(self):
+		self.browser.get(self.live_server_url)
+
+		inputbox = self.browser.find_element(By.ID, 'id_new_item')
+		inputbox.send_keys('Testar botões de navegação')
+		inputbox.send_keys(Keys.ENTER)
+		time.sleep(1)
+
+		# Verifica se o botão "Anterior" está desabilitado na primeira lista
+		previous_button = self.browser.find_element(By.ID, 'btn_anterior')
+		self.assertTrue(previous_button.get_attribute('disabled'))
+
+		# Verifica se o botão "Próximo" está habilitado
+		next_button = self.browser.find_element(By.ID, 'btn_proximo')
+		self.assertFalse(next_button.get_attribute('disabled'))
+
+		# Cria uma nova lista para testar a navegação
+		self.browser.get(self.live_server_url)
+		time.sleep(1)
+
+		inputbox = self.browser.find_element(By.ID, 'id_new_item')
+		inputbox.send_keys('Testar botões de navegação lista 2')
+		inputbox.send_keys(Keys.ENTER)
+		time.sleep(1)
+
+		# Verifica se o botão "Anterior" agora está habilitado
+		previous_button = self.browser.find_element(By.ID, 'btn_anterior')
+		self.assertFalse(previous_button.get_attribute('disabled'))
+
+		# Clica no botão "Anterior" e verifica se voltou para a lista 1
+		previous_button.click()
+		self.assertEqual(self.browser.current_url, self.live_server_url + '/lists/1/')
+
+		# Clica no botão "Próximo" para ir para a lista 2
+		self.browser.get(self.live_server_url + '/lists/1/')
+		next_button = self.browser.find_element(By.ID, 'btn_proximo')
+		next_button.click()
+		self.assertEqual(self.browser.current_url, self.live_server_url + '/lists/2/')
+		
 	def test_can_start_a_list_for_one_user(self):
 		# Edith ouviu falar de uma nova aplicação online interessante
 		# para lista de tarefas. Ela decide verificar a homepage
@@ -130,5 +169,3 @@ class NewVisitorTest(LiveServerTestCase):
 		page_text = " ".join(element.text for element in elements)
 		self.assertNotIn('Buy peacock feathers', page_text)
 		self.assertIn('Buy milk', page_text)
-
-		# Fim		
