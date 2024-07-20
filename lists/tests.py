@@ -3,6 +3,24 @@ from django.test import TestCase
 from lists.views import home_page
 from lists.models import Item, List
 
+class ListViewTest(TestCase):
+
+    def test_view_list_with_existing_id(self):
+        list_ = List.objects.create()
+        response = self.client.get(resolve(f'/lists/{list_.id}/'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'list.html')
+
+    def test_redirect_if_list_id_is_greater_than_max_id(self):
+        max_id = List.objects.latest('id').id + 1
+        response = self.client.get(f'/lists/{max_id + 1}/')
+        self.assertRedirects(response, f'/lists/{max_id}/')
+
+    def test_redirect_to_first_list_if_id_is_invalid(self):
+        response = self.client.get('/lists/0/')
+        self.assertRedirects(response, '/lists/1/')
+
+
 class HomePageTest(TestCase):
 
 	def test_root_url_resolves_to_home_page_view(self):
@@ -119,3 +137,4 @@ class ListAndItemModelTest(TestCase):
 		self.assertEquals(first_saved_item.list, list_)
 		self.assertEquals(second_saved_item.text, 'Item the second')
 		self.assertEquals(second_saved_item.list, list_)
+
